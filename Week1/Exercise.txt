@@ -1,0 +1,41 @@
+DECLARE
+  v_today DATE := SYSDATE;
+  v_tomorrow v_today%TYPE;
+BEGIN
+  v_tomorrow := v_today+1;
+  DBMS_OUTPUT.PUT_LINE('Hello world!');
+  DBMS_OUTPUT.PUT_LINE('Today is: ' || v_today);
+  DBMS_OUTPUT.PUT_LINE('Tomorrow is: ' || v_tomorrow);
+END;
+/
+SET SERVEROUTPUT ON
+SET VERIFY OFF
+/
+DECLARE
+  v_fname EMPLOYEES.first_name%TYPE;
+  v_lname v_fname%TYPE;
+  v_empid EMPLOYEES.employee_id%TYPE := &empno;
+BEGIN
+  SELECT first_name, last_name INTO v_fname, v_lname
+  FROM employees
+  WHERE employee_id = v_empid;
+  DBMS_OUTPUT.PUT_LINE('Full name is: ' || v_fname || ' ' || v_lname); 
+END;
+/
+
+DECLARE
+  v_fname EMPLOYEES.first_name%TYPE;
+  v_lname v_fname%TYPE;
+  v_job EMPLOYEES.job_id%TYPE := '&job';
+BEGIN
+  SELECT first_name, last_name INTO v_fname, v_lname
+  FROM employees
+  WHERE job_id = v_job;
+  DBMS_OUTPUT.PUT_LINE('Full name is: ' || v_fname || ' ' || v_lname); 
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+      DBMS_OUTPUT.PUT_LINE('This JOB does NOT exit.');
+  WHEN TOO_MANY_ROWS THEN
+      DBMS_OUTPUT.PUT_LINE('Many employees with this Job.');
+END;
+/

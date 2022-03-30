@@ -1,0 +1,97 @@
+@lab2q1;
+ACCEPT scale PROMPT 'Enter your input scale (C or F) for temperature: ';
+ACCEPT temp PROMPT 'Enter your temperature value to be converted:  '
+DECLARE
+	input_scale CHAR;
+	input_temp NUMBER;
+	new_temp NUMBER(4,1);
+BEGIN
+	input_scale  := '&scale';
+	input_temp := &temp;	
+	IF input_scale = 'C' THEN
+		new_temp := ((9*input_temp) / 5) + 32;
+		DBMS_OUTPUT.PUT_LINE('Your converted temperature in F is exactly ' || new_temp);
+	ELSIF input_scale = 'F' THEN
+		new_temp := ((input_temp - 32)*5) / 9;
+		DBMS_OUTPUT.PUT_LINE('Your converted temperature in C is exactly ' || new_temp);
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('The scale you input is not a valid scale');
+	END IF;
+END;
+/
+
+ACCEPT search_Id PROMPT 'Please enter the Instructor Id: '
+DECLARE
+	ins_Id NUMBER := &search_Id;
+	num_sections NUMBER;
+	lname VARCHAR2(25);
+	fname VARCHAR2(25);
+BEGIN	
+	SELECT COUNT(s.instructor_id), i.first_name, i.last_name INTO num_sections, fname, lname
+	FROM instructor i
+	LEFT JOIN section s ON s.instructor_id = i.instructor_id
+	WHERE i.instructor_id = ins_Id
+	GROUP BY s.instructor_id, i.first_name, i.last_name;	
+	DBMS_OUTPUT.PUT_LINE('Instructor, ' || fname || ' ' || lname || ', teaches ' || num_sections || ' section(s).');
+	IF num_sections >= 10 THEN
+		DBMS_OUTPUT.PUT_LINE('This instructor needs to rest in the next term. ');
+	ELSIF num_sections <= 3 THEN
+		DBMS_OUTPUT.PUT_LINE('This instructor may teach more sections.');
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('This instructor teaches enough sections. ');
+	END IF;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('This is not a valid instructor');
+END;
+/
+
+ACCEPT positive_integer PROMPT 'Please enter a Positive Integer: '
+DECLARE
+	num INT :=&positive_integer;
+	total NUMBER := 0;
+BEGIN
+	FOR i IN 1..num LOOP
+		IF MOD(num,2) = 1 THEN
+			IF MOD(i,2) = 1 THEN
+				total := total + i;
+			END IF;
+		ELSE
+			IF MOD(i,2) = 0 THEN
+				total := total + i;
+			END IF;
+		END IF;
+	END LOOP;
+	IF MOD(num,2) = 0 THEN
+		DBMS_OUTPUT.PUT_LINE('The sum of Even integers between 1 and ' || num || ' is ' || total);
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('The sum of Odd integers between 1 and ' || num || ' is ' || total);
+	END IF;
+END;
+/
+
+ACCEPT location_id PROMPT 'Enter valid Location Id: '
+DECLARE
+	dep NUMBER(4,0) := &location_id;
+	num_dep NUMBER;
+	num_emp NUMBER;
+BEGIN
+	SELECT  COUNT(location_id) INTO num_dep
+	FROM departments
+	WHERE location_id = dep
+	GROUP BY location_id;
+	SELECT  COUNT(d.location_id) INTO num_emp
+	FROM employees e
+	INNER JOIN departments d ON e.department_id = d.department_id
+	WHERE d.location_id = dep
+	GROUP BY d.location_id;
+	<<Outer_Loop>>
+	FOR i IN 1..num_dep LOOP
+		DBMS_OUTPUT.PUT_LINE('Outer Loop: Department #' || i);
+		<<Inner_Loop>>
+		FOR j IN 1..num_emp LOOP
+			DBMS_OUTPUT.PUT_LINE('* Inner Loop: Employee #' || j);
+		END LOOP Inner_Loop;	
+	END LOOP Outer_Loop;
+END;
+/
